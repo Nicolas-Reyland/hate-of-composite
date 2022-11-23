@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 
     initialize_rng();
 
-    BIGNUM *p = miller_rabin_prime_generation(100, 128);
+    BIGNUM *p = miller_rabin_prime_generation(400, 1E10);
 
     if (p == NULL)
     {

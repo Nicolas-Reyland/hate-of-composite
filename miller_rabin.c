@@ -128,8 +128,23 @@ static int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests,
         goto MillerRabinTestsEnd;
     }
 
+    BN_one(bn_one);
+    BN_set_word(bn_two, 2);
+    BN_sub(n_minus_one, n, bn_one);
+
     /* Miller-Rabin tests */
     result = -2;
+
+    // s = 0
+    BN_zero(s);
+    // r = n - 1
+    BN_copy(r, n_minus_one);
+
+    while (!BN_is_odd(r))
+    {
+        BN_add(s, s, bn_one);
+        BN_div(r, NULL, r, bn_two, ctx);
+    }
 
     for (unsigned i = 0; i < num_tests; ++i)
     {
@@ -147,7 +162,7 @@ static int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests,
             BN_one(j);
 
             //            j < s       &&        x != n - 1
-            while (BN_cmp(j, s) == -1 && BN_cmp(x, n_minus_one) != 0)
+            while (BN_cmp(j, s) < 0 && BN_cmp(x, n_minus_one) != 0)
             {
                 // x = x ^ 2 % n
                 BN_mod_exp(x, x, bn_two, n, ctx);

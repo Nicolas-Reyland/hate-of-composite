@@ -24,7 +24,7 @@ def is_prime(n: int, k: int = 128) -> bool:
 
     s = 0
     r = n - 1
-    # while r is odd ...
+    # while r is even ...
     while r & 1 == 0:
         s += 1
         r //= 2
@@ -81,7 +81,13 @@ def generate_prime(num_bits: int) -> int:
 
 if __name__ == "__main__":
     num_args = len(sys.argv)
-    if 2 <= num_args <= 3:
+    if 2 <= num_args <= 3 and sys.argv[1] == "--check":
+        if num_args == 2:
+            s = sys.stdin.readline().strip()
+        else:
+            s = sys.argv[2]
+        print(f"{s} is a {'prime' if is_prime(int(s)) else 'composite'} number")
+    elif 2 <= num_args <= 3:
         num_bits = int(sys.argv[1])
         prime = generate_prime(num_bits)
 

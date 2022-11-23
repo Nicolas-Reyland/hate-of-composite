@@ -22,6 +22,8 @@ int random_decision()
 
 void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b)
 {
-    (void)a;
+    BN_sub(b, b, a);
     BN_rand_range(r, b);
+    BN_add(b, b, a);
+    BN_add(r, r, a);
 }
