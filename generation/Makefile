@@ -10,8 +10,6 @@ CFLAGS += -Wall -Wextra -Wvla -Werror
 CFLAGS += -std=c99
 # Include paths
 CFLAGS += -Isrc
-# debugging
-CFLAGS += -g
 
 # custom
 CFLAGS += $(CMD_CFLAGS)
@@ -19,9 +17,13 @@ CFLAGS += $(CMD_CFLAGS)
 TEST_LDLIBS = -lcriterion
 LDLIBS = -lssl -lcrypto
 
+ifdef DEBUG
+# debugging
+CFLAGS += -g
 # fsanitize
 CFLAGS += -fsanitize=address
 LD_LIBS += -fsanitize=address
+endif
 
 
 # -*- Setup Files Variables -*-
