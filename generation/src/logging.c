@@ -7,4 +7,4 @@
  * 3: default + info messages
  * 4: default + info & debug messages
  */
-int LOG_LEVEL = 2;
+int LOG_LEVEL = DEFAULT_LOG_LEVEL;

@@ -37,7 +37,10 @@ int main(int argc, char **argv)
         long length = strtol(buffer, NULL, 10);
         BIGNUM *p = generate_prime(length);
         if (p == NULL)
+        {
+            LOG_ERROR("Failed to generate prime with length %s", buffer);
             exit_code = 1;
+        }
         else
         {
             char *p_str = flags & CMD_FLAGS_HEX ? BN_bn2hex(p) : BN_bn2dec(p);
@@ -75,6 +78,8 @@ int main(int argc, char **argv)
     return exit_code;
 }
 
+static void set_verbosity(char *arg);
+
 static unsigned char parse_args(int argc, char **argv, char *buffer)
 {
     unsigned char flags;
@@ -95,6 +100,12 @@ static unsigned char parse_args(int argc, char **argv, char *buffer)
             flags |= CMD_FLAGS_TST;
             goto NextArgIsAValue;
         }
+        // verbosity
+        if (strncmp(argv[i], "-v", 2) == 0)
+        {
+            set_verbosity(argv[i]);
+            continue;
+        }
         flags |= CMD_FLAGS_ERR;
         return flags;
 
@@ -111,6 +122,16 @@ static unsigned char parse_args(int argc, char **argv, char *buffer)
         flags |= CMD_FLAGS_ERR;
 
     return flags;
+}
+
+static void set_verbosity(char *arg)
+{
+    int log_level = 2;
+    for (int i = 1; arg[i] == 'v'; ++i)
+        ++log_level;
+
+    if (LOG_LEVEL < log_level)
+        LOG_LEVEL = log_level;
 }
 
 static void usage_msg(void)

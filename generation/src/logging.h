@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define DEFAULT_LOG_LEVEL 2
+
 extern int LOG_LEVEL;
 
 #define LOG_ERROR(Format, ...)                                                 \
