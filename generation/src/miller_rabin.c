@@ -50,9 +50,6 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
         goto MillerRabinFailed;
     }
 
-    // TODO: remove this test
-    BN_clear_free(NULL);
-
     /* Find a prime number (trial and error) */
     int found_prime;
     do
