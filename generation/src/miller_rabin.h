@@ -11,4 +11,6 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests);
 
 int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx);
 
+unsigned estimate_num_tests(unsigned length);
+
 #endif /* !MILLER_RABIN_H */

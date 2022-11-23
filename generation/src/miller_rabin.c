@@ -3,6 +3,14 @@
 #include "logging.h"
 #include "random.h"
 
+unsigned estimate_num_tests(unsigned length)
+{
+    unsigned num_tests = length;
+    if (num_tests < 10)
+        num_tests = 10;
+    return num_tests;
+}
+
 static int generate_prime_candidate(BIGNUM *p, unsigned length);
 
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
