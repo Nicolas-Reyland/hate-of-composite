@@ -9,7 +9,11 @@ int primality_test(BIGNUM *p)
     num_tests *= 2;
 
     BN_CTX *ctx = BN_CTX_secure_new();
-    int success = miller_rabin_primality_check(p, num_tests, ctx);
+    int success = preliminary_checks(p, ctx);
+    if (success)
+        success = miller_rabin_primality_check(p, num_tests, ctx);
+    else
+        LOG_DEBUG("Candidate did not pass preliminary checks")
     BN_CTX_free(ctx);
 
     return success;
