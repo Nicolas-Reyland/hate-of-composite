@@ -83,7 +83,7 @@ static void set_verbosity(char *arg);
 
 static unsigned char parse_args(int argc, char **argv, char *buffer)
 {
-    unsigned char flags;
+    unsigned char flags = 0;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--hex") == 0)
