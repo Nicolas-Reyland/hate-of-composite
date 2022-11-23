@@ -29,8 +29,6 @@ unsigned estimate_num_tests(unsigned length)
     return num_tests;
 }
 
-static int preliminary_checks(BIGNUM *n, BN_CTX *ctx);
-
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 {
     if (!prng_initialized)
@@ -81,6 +79,16 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 
         if (!preliminary_checks(p, ctx))
             continue;
+
+#if 0
+        // if debugging is set
+        if (LOG_LEVEL >= 4)
+        {
+            char *buf = BN_bn2dec(p);
+            LOG_DEBUG("%s passed preliminary", buf);
+            OPENSSL_free(buf);
+        }
+#endif /* 0 */
 
         if ((found_prime = miller_rabin_primality_check(p, num_tests, ctx))
             == -1)

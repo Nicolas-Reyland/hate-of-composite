@@ -29,7 +29,7 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > 2)                                                     \
         {                                                                      \
-            fprintf(stdout, "\033[32m{INFO}\033[39m %s: " Format "\n",         \
+            fprintf(stderr, "\033[32m{INFO}\033[39m %s: " Format "\n",         \
                     __func__, ##__VA_ARGS__);                                  \
         }                                                                      \
     }
@@ -38,7 +38,7 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > 3)                                                     \
         {                                                                      \
-            fprintf(stdout, "\033[94m{DEBUG}\033[39m %s: " Format "\n",        \
+            fprintf(stderr, "\033[94m{DEBUG}\033[39m %s: " Format "\n",        \
                     __func__, ##__VA_ARGS__);                                  \
         }                                                                      \
     }
