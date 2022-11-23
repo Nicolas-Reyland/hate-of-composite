@@ -58,12 +58,12 @@ int main(int argc, char **argv)
         if (primality_test(n) == 1)
         {
             LOG_INFO("%s is a prime number", buffer);
-            exit_code = 0;
+            exit_code = 1;
         }
         else
         {
             LOG_INFO("%s is NOT a prime number", buffer);
-            exit_code = 1;
+            exit_code = 0;
         }
         BN_free(n);
     }
