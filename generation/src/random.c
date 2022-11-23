@@ -1,5 +1,6 @@
 #include "random.h"
 
+#include <openssl/err.h>
 #include <time.h>
 
 #include "logging.h"
@@ -32,26 +33,26 @@ void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b)
 
 int generate_prime_candidate(BIGNUM *p, unsigned length)
 {
-    // TODO: make this faster (setting bits 8 by 8 or something ?)
-
     // Fill p at [1:length-2] with random bits
-    for (unsigned i = 1; i < length - 1; ++i)
+    unsigned pos = 1;
+    unsigned until = length - 1;
+
+    while (pos < until)
     {
-        if (random_decision())
+        int buf = random_int();
+        for (size_t i = 0; i < sizeof(int) * 8; ++i)
         {
-            if (!BN_set_bit(p, i))
+            int success =
+                buf & 1 ? BN_set_bit(p, pos++) : BN_clear_bit(p, pos++);
+            if (!success)
             {
-                LOG_ERROR("failed to set bit %u", i)
+                LOG_ERROR("(set/clear _bit) %s",
+                          ERR_error_string(ERR_get_error(), NULL))
                 return 0;
             }
-        }
-        else
-        {
-            if (!BN_clear_bit(p, i))
-            {
-                LOG_ERROR("failed to clear bit %u", i)
-                return 0;
-            }
+            if (pos == until)
+                break;
+            buf >>= 1;
         }
     }
 

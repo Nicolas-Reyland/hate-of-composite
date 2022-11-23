@@ -6,14 +6,30 @@
 #include "logging.h"
 #include "random.h"
 
+// 24 first prime numbers
+static int PRELIMINARY_PRIMES[] = { 3,  5,  7,  11, 13, 17, 19, 23,
+                                    29, 31, 37, 41, 43, 47, 53, 59,
+                                    61, 67, 71, 73, 79, 83, 89, 97 };
+
+/*
+ * Src:
+ * https://security.stackexchange.com/questions/4544/how-many-iterations-of-rabin-miller-should-be-used-to-generate-cryptographic-saf
+ *
+ * (Post by Thomas Pornin:
+ * https://security.stackexchange.com/users/655/thomas-pornin)
+ */
 unsigned estimate_num_tests(unsigned length)
 {
     unsigned num_tests = length;
     if (num_tests < 10)
         num_tests = 10;
+    if (num_tests > 40)
+        num_tests = 40;
 
     return num_tests;
 }
+
+static int preliminary_checks(BIGNUM *n, BN_CTX *ctx);
 
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 {
@@ -63,6 +79,9 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
         if (!generate_prime_candidate(p, length))
             goto MillerRabinFailed;
 
+        if (!preliminary_checks(p, ctx))
+            continue;
+
         if ((found_prime = miller_rabin_primality_check(p, num_tests, ctx))
             == -1)
             goto MillerRabinFailed;
@@ -75,10 +94,44 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 
     /* Something failed */
 MillerRabinFailed:
+    BN_CTX_free(ctx);
     BN_clear_free(p);
 
     LOG_DEBUG("Exit with failure")
     return NULL;
+}
+
+/*
+ *
+ *
+ * Src:
+ * https://security.stackexchange.com/questions/4544/how-many-iterations-of-rabin-miller-should-be-used-to-generate-cryptographic-saf
+ * (Post by JAred Deckard:
+ * https://security.stackexchange.com/users/160084/jared-deckard)
+ */
+int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
+{
+    // TODO: check for errors
+
+    BN_CTX_start(ctx);
+
+    BIGNUM *rem = BN_CTX_get(ctx);
+    BIGNUM *div = BN_CTX_get(ctx);
+
+    for (size_t i = 0;
+         i < sizeof(PRELIMINARY_PRIMES) / sizeof(PRELIMINARY_PRIMES[0]); ++i)
+    {
+        BN_set_word(div, PRELIMINARY_PRIMES[i]);
+        BN_mod(rem, n, div, ctx);
+        if (BN_is_zero(rem))
+        {
+            BN_CTX_end(ctx);
+            return 0;
+        }
+    }
+
+    BN_CTX_end(ctx);
+    return 1;
 }
 
 int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
