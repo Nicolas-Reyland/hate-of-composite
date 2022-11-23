@@ -4,4 +4,5 @@ Sources used :
  - [Frobenius pseudoprime](https://en.wikipedia.org/wiki/Frobenius_pseudoprime)
  - [Generation of primes](https://en.wikipedia.org/wiki/Generation_of_primes)
  - [cryptography - How does OpenSSL generate a big prime number so fast?](https://security.stackexchange.com/questions/176394/how-does-openssl-generate-a-big-prime-number-so-fast)
+ - [Miller–Rabin primality test - Wikipedia](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test)
 

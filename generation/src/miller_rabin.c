@@ -145,6 +145,7 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
     // r = n - 1
     BN_copy(r, n_minus_one);
 
+    // n - 1 = r * 2 ^ s
     while (!BN_is_odd(r))
     {
         BN_add(s, s, bn_one);
