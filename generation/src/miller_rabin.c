@@ -5,9 +5,6 @@
 
 static int generate_prime_candidate(BIGNUM *p, unsigned length);
 
-static int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests,
-                                        BN_CTX *ctx);
-
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 {
     if (!rng_initialized)
@@ -60,13 +57,14 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
             goto MillerRabinFailed;
     } while (!found_prime);
 
+    BN_CTX_free(ctx);
     LOG_DEBUG("Exit successful")
+
     return p;
 
     /* Something failed */
 MillerRabinFailed:
     BN_clear_free(p);
-    BN_CTX_free(ctx);
 
     LOG_DEBUG("Exit with failure")
     return NULL;
@@ -100,8 +98,7 @@ static int generate_prime_candidate(BIGNUM *p, unsigned length)
     return 1;
 }
 
-static int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests,
-                                        BN_CTX *ctx)
+int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
 {
     /* Trivial- and Edge-cases */
     if (BN_is_word(n, 2))
