@@ -1,5 +1,7 @@
 Sources used :
  - [How to generate big prime numbers — Miller-Rabin | by Antoine Prudhomme | Medium](https://medium.com/@prudywsh/how-to-generate-big-prime-numbers-miller-rabin-49e6e6af32fb)
- - [Primality Test - Wikipedia](https://en.wikipedia.org/wiki/Primality_test)
+ - [Primality test - Wikipedia](https://en.wikipedia.org/wiki/Primality_test)
+ - [Frobenius pseudoprime](https://en.wikipedia.org/wiki/Frobenius_pseudoprime)
  - [Generation of primes](https://en.wikipedia.org/wiki/Generation_of_primes)
+ - [cryptography - How does OpenSSL generate a big prime number so fast?](https://security.stackexchange.com/questions/176394/how-does-openssl-generate-a-big-prime-number-so-fast)
 
