@@ -4,11 +4,15 @@
 # -*- Setup Compilation Variables -*-
 CC ?= gcc
 
-CFLAGS = -Wall -Wextra -Wvla
-# not sure ?
+# Warnings
+CFLAGS += -Wall -Wextra -Wvla -Werror
+# Standard
+CFLAGS += -std=c99
+# Include paths
+CFLAGS += -Isrc
+# debugging
 CFLAGS += -g
-# mandatory (self)
-CFLAGS += -Isrc -I.
+
 # custom
 CFLAGS += $(CMD_CFLAGS)
 
@@ -36,11 +40,11 @@ TEST_EXE = my_prime-test
 # -*- Rules -*-
 all: $(EXE)
 
-check: $(TEST_EXE) $(EXE)
-	@echo No tests written yet
-
 $(EXE): $(OBJS) $(MAIN_C)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+check: $(TEST_EXE) $(EXE)
+	@echo No tests written yet
 
 $(TEST_EXE): $(OBJS) $(TEST_OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS) $(TEST_LDLIBS)
