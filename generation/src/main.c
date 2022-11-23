@@ -55,15 +55,25 @@ int main(int argc, char **argv)
     {
         BIGNUM *n = NULL;
         BN_hex2bn(&n, buffer);
-        if (primality_test(n) == 1)
+        int success = primality_test(n);
+        switch (success)
         {
+        case 1: {
             LOG_INFO("%s is a prime number", buffer);
             exit_code = 1;
         }
-        else
-        {
+        break;
+        case 0: {
             LOG_INFO("%s is NOT a prime number", buffer);
             exit_code = 0;
+        }
+        break;
+        default: {
+            LOG_WARN("primality check exited with a failure status for %s",
+                     buffer)
+            exit_code = 0;
+        }
+        break;
         }
         BN_free(n);
     }

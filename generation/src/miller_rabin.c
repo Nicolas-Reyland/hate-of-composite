@@ -111,8 +111,13 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
     /* Trivial- and Edge-cases */
     if (BN_is_word(n, 2))
         return 1;
-    if (!BN_is_odd(n) || BN_is_zero(n) || BN_is_one(n) || BN_is_negative(n))
+    if (!BN_is_odd(n) || BN_is_zero(n) || BN_is_one(n))
         return 0;
+    if (BN_is_negative(n))
+    {
+        LOG_WARN("Negative prime candidate")
+        return -1;
+    }
 
     int result = -1;
 
