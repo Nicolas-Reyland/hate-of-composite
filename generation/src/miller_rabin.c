@@ -122,7 +122,7 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
          i < sizeof(PRELIMINARY_PRIMES) / sizeof(PRELIMINARY_PRIMES[0]); ++i)
     {
         BN_set_word(div, PRELIMINARY_PRIMES[i]);
-        BN_nnmod(rem, n, div, ctx);
+        BN_mod(rem, n, div, ctx);
         if (BN_is_zero(rem))
         {
             BN_CTX_end(ctx);
@@ -151,81 +151,75 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
 
     /* BIGNUM Initializations */
     BN_CTX_start(ctx);
-    BIGNUM *r = BN_CTX_get(ctx);
-    BIGNUM *s = BN_CTX_get(ctx);
+    unsigned s;
+    BIGNUM *d = BN_CTX_get(ctx);
     BIGNUM *a = BN_CTX_get(ctx);
     BIGNUM *x = BN_CTX_get(ctx);
-    BIGNUM *j = BN_CTX_get(ctx);
+    BIGNUM *y = BN_CTX_get(ctx);
     BIGNUM *n_minus_one = BN_CTX_get(ctx);
-    BIGNUM *bn_one = BN_CTX_get(ctx);
-    BIGNUM *bn_two = BN_CTX_get(ctx);
+    BIGNUM *one = BN_CTX_get(ctx);
+    BIGNUM *two = BN_CTX_get(ctx);
     // Only need to check the last call to BN_CTX_get
     // Src: https://www.openssl.org/docs/manmaster/man3/BN_CTX_get.html
-    if (bn_two == NULL)
+    if (two == NULL)
     {
         unsigned long err_code = ERR_get_error();
         LOG_ERROR("%s", ERR_error_string(err_code, NULL))
         goto MillerRabinTestsEnd;
     }
 
-    BN_one(bn_one);
-    BN_set_word(bn_two, 2);
-    BN_sub(n_minus_one, n, bn_one);
+    // TODO: check for errors
+
+    BN_one(one);
+    BN_set_word(two, 2);
+    BN_sub(n_minus_one, n, one);
 
     /* Miller-Rabin tests */
     result = -2;
 
     // s = 0
-    BN_zero(s);
-    // r = n - 1
-    BN_copy(r, n_minus_one);
+    s = 0;
+    // d = n - 1
+    BN_copy(d, n_minus_one);
 
-    // n - 1 = r * 2 ^ s
-    while (!BN_is_odd(r))
+    // while r is even ...
+    while (!BN_is_odd(d))
     {
-        BN_add(s, s, bn_one);
-        BN_div(r, NULL, r, bn_two, ctx);
+        // s += 1
+        ++s;
+        // d /= 2
+        BN_rshift1(d, d);
     }
+    // d * 2^s = n - 1
 
-    for (unsigned i = 0; i < num_tests; ++i)
+    for (unsigned round = 0; round < num_tests; ++round)
     {
         // Endpoint is excluded
-        random_bn_from_range(a, bn_two, n_minus_one);
-        // Modular exponentiation (x = a ^ r % n)
-        BN_mod_exp(x, a, r, n, ctx);
+        random_bn_from_range(a, two, n_minus_one);
+        // Modular exponentiation (x = a ^ d % n)
+        BN_mod_exp(x, a, d, n, ctx);
 
-        // TODO: check for errors
-
-        //     x != 1     &&        x != n - 1
-        if (!BN_is_one(x) && BN_cmp(x, n_minus_one) != 0)
+        for (unsigned sub_round = 0; sub_round < s; ++sub_round)
         {
-            // j = 1
-            BN_one(j);
+            // y = x^2 % n
+            BN_mod_exp(y, x, two, n, ctx);
 
-            //            j < s       &&        x != n - 1
-            while (BN_cmp(j, s) < 0 && BN_cmp(x, n_minus_one) != 0)
+            //     y == 1    &&    x != 1     &&     X != n - 1
+            if (BN_is_one(y) && !BN_is_one(x) && BN_cmp(x, n_minus_one) != 0)
             {
-                // x = x ^ 2 % n
-                BN_mod_exp(x, x, bn_two, n, ctx);
-
-                //    x == 1
-                if (BN_is_one(x))
-                {
-                    LOG_DEBUG("found prime with certainty after %u tests", i)
-                    result = 1;
-                    goto MillerRabinTestsEnd;
-                }
-
-                // j += 1
-                BN_add_word(j, 1);
-            }
-
-            // x != n - 1
-            if (BN_cmp(x, n_minus_one) != 0)
-            {
+                // nontrivial square root of 1 modulo n
                 result = 0;
                 goto MillerRabinTestsEnd;
             }
+            // x = y
+            BN_copy(x, y);
+        }
+
+        //    y != 1
+        if (!BN_is_one(y))
+        {
+            result = 0;
+            goto MillerRabinTestsEnd;
         }
     }
 
