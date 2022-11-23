@@ -1,5 +1,6 @@
 #include "miller_rabin.h"
 
+#include <math.h>
 #include <openssl/err.h>
 
 #include "logging.h"
@@ -10,10 +11,9 @@ unsigned estimate_num_tests(unsigned length)
     unsigned num_tests = length;
     if (num_tests < 10)
         num_tests = 10;
+
     return num_tests;
 }
-
-static int generate_prime_candidate(BIGNUM *p, unsigned length);
 
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 {
@@ -79,34 +79,6 @@ MillerRabinFailed:
 
     LOG_DEBUG("Exit with failure")
     return NULL;
-}
-
-static int generate_prime_candidate(BIGNUM *p, unsigned length)
-{
-    // TODO: make this faster (setting bits 8 by 8 or something ?)
-
-    // Fill p at [1:length-2] with random bits
-    for (unsigned i = 1; i < length - 1; ++i)
-    {
-        if (random_decision())
-        {
-            if (!BN_set_bit(p, i))
-            {
-                LOG_ERROR("failed to set bit %u", i)
-                return 0;
-            }
-        }
-        else
-        {
-            if (!BN_clear_bit(p, i))
-            {
-                LOG_ERROR("failed to clear bit %u", i)
-                return 0;
-            }
-        }
-    }
-
-    return 1;
 }
 
 int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)

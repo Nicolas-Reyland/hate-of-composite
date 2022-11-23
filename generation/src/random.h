@@ -13,4 +13,6 @@ int random_decision(void);
 
 void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b);
 
+int generate_prime_candidate(BIGNUM *p, unsigned length);
+
 #endif /* !RANDOM_H */
