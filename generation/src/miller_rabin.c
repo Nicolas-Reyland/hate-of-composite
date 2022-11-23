@@ -67,8 +67,7 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
     }
 
     /* Find a prime number (trial and error) */
-    int found_prime = 0;
-    int count = 0;
+    int found_prime = 0, count = 0;
     do
     {
         if (++count % 100 == 0)

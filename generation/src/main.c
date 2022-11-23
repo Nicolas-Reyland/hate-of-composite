@@ -15,14 +15,14 @@
 #define CMD_FLAGS_DEC 0b010000
 #define CMD_FLAGS_ERR 0b100000
 
-static unsigned char parse_args(int argc, char **argv, char *buffer);
+static unsigned parse_args(int argc, char **argv, char *buffer);
 
 static void usage_msg(void);
 
 int main(int argc, char **argv)
 {
     char buffer[4096];
-    unsigned char flags = parse_args(argc, argv, buffer);
+    unsigned flags = parse_args(argc, argv, buffer);
 
     int exit_code = 0;
 
@@ -34,65 +34,89 @@ int main(int argc, char **argv)
 
     initialize_prng();
 
-    // TODO: validate input (such as numbers, of any kind)
-
+    /* Prime Number Generation */
     if (flags & CMD_FLAGS_GEN)
     {
-        long length = strtol(buffer, NULL, 10);
-        BIGNUM *p = generate_prime(length);
-        if (p == NULL)
+        char *endptr = NULL;
+        long length = strtol(buffer, &endptr, 10);
+        if (*endptr != 0)
         {
-            LOG_ERROR("Failed to generate prime with length %s", buffer);
-            exit_code = 1;
+            LOG_ERROR("Invalid integer: %s (only base allwed is 10)\n", buffer)
+            usage_msg();
+            exit_code = 2;
         }
         else
         {
-            char *p_str = flags & CMD_FLAGS_HEX ? BN_bn2hex(p) : BN_bn2dec(p);
-            printf("%s\n", p_str);
-            OPENSSL_free(p_str);
-            BN_free(p);
-            exit_code = 0;
+            BIGNUM *p = generate_prime(length);
+            if (p == NULL)
+            {
+                LOG_ERROR("Failed to generate prime with length %s", buffer);
+                exit_code = 1;
+            }
+            else
+            {
+                char *p_str =
+                    flags & CMD_FLAGS_HEX ? BN_bn2hex(p) : BN_bn2dec(p);
+                printf("%s\n", p_str);
+                OPENSSL_free(p_str);
+                BN_free(p);
+                exit_code = 0;
+            }
         }
     }
+    /* Primality Testing */
     else if (flags & CMD_FLAGS_TST)
     {
         BIGNUM *n = NULL;
+        int (*bn_read_fn)(BIGNUM * *a, const char *str);
+
         if (flags & CMD_FLAGS_DEC)
         {
             LOG_DEBUG("Reading %s as decimal value", buffer);
-            BN_dec2bn(&n, buffer);
+            bn_read_fn = BN_dec2bn;
         }
         else
         {
             LOG_DEBUG("Reading %s as hex value (default)", buffer);
-            BN_hex2bn(&n, buffer);
+            bn_read_fn = BN_hex2bn;
         }
-        int success = primality_test(n);
-        switch (success)
+        size_t num_read = (*bn_read_fn)(&n, buffer);
+        size_t num_chars_to_read = strlen(buffer);
+        if (num_read == 0 || num_read < num_chars_to_read)
         {
-        case 1: {
-            LOG_INFO("%s is a prime number", buffer);
-            exit_code = 1;
+            LOG_ERROR("Could not read given prime number \"%s\"", buffer)
+            exit_code = 2;
         }
-        break;
-        case 0: {
-            LOG_INFO("%s is NOT a prime number", buffer);
-            exit_code = 0;
+        else
+        {
+            int success = primality_test(n);
+            switch (success)
+            {
+            case 1: {
+                LOG_INFO("%s is a prime number", buffer);
+                exit_code = 1;
+            }
+            break;
+            case 0: {
+                LOG_INFO("%s is NOT a prime number", buffer);
+                exit_code = 0;
+            }
+            break;
+            default: {
+                LOG_WARN("primality check exited with a failure status for %s",
+                         buffer)
+                exit_code = 0;
+            }
+            break;
+            }
+            BN_free(n);
         }
-        break;
-        default: {
-            LOG_WARN("primality check exited with a failure status for %s",
-                     buffer)
-            exit_code = 0;
-        }
-        break;
-        }
-        BN_free(n);
     }
+    /* No command input */
     else
     {
         usage_msg();
-        exit(EXIT_SUCCESS);
+        exit_code = 0;
     }
 
     // clean up
@@ -103,9 +127,9 @@ int main(int argc, char **argv)
 
 static void set_verbosity(char *arg);
 
-static unsigned char parse_args(int argc, char **argv, char *buffer)
+static unsigned parse_args(int argc, char **argv, char *buffer)
 {
-    unsigned char flags = 0;
+    unsigned flags = 0;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--hex") == 0)
