@@ -1,5 +1,6 @@
 #include "primality_test.h"
 
+#include "logging.h"
 #include "miller_rabin.h"
 
 int primality_test(BIGNUM *p)
