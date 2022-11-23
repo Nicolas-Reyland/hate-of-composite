@@ -15,12 +15,16 @@ CFLAGS += $(CMD_CFLAGS)
 TEST_LDLIBS = -lcriterion
 LDLIBS = -lssl -lcrypto
 
+# fsanitize
+CFLAGS += -fsanitize=address
+LD_LIBS += -fsanitize=address
+
 
 # -*- Setup Files Variables -*-
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-MAIN_C = main.c
-SRCS = $(filter-out $(MAIN_C), $(wildcard *.c))
+MAIN_C = src/main.c
+SRCS = $(filter-out $(MAIN_C), $(call rwildcard, src, *.c))
 TEST_SRCS = $(wildcard tests/test_*.c)
 OBJS = $(SRCS:.c=.o)
 TEST_OBJS = $(TEST_SRCS:.c=.o)
