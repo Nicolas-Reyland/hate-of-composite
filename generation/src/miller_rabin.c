@@ -122,7 +122,7 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
          i < sizeof(PRELIMINARY_PRIMES) / sizeof(PRELIMINARY_PRIMES[0]); ++i)
     {
         BN_set_word(div, PRELIMINARY_PRIMES[i]);
-        BN_mod(rem, n, div, ctx);
+        BN_nnmod(rem, n, div, ctx);
         if (BN_is_zero(rem))
         {
             BN_CTX_end(ctx);
