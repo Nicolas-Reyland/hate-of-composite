@@ -8,10 +8,11 @@
 #include "primality_test.h"
 #include "random.h"
 
-#define CMD_FLAGS_GEN 0b0001
-#define CMD_FLAGS_HEX 0b0010
-#define CMD_FLAGS_TST 0b0100
-#define CMD_FLAGS_ERR 0b1000
+#define CMD_FLAGS_GEN 0b00001
+#define CMD_FLAGS_HEX 0b00010
+#define CMD_FLAGS_TST 0b00100
+#define CMD_FLAGS_HLP 0b01000
+#define CMD_FLAGS_ERR 0b10000
 
 static unsigned char parse_args(int argc, char **argv, char *buffer);
 
@@ -24,10 +25,10 @@ int main(int argc, char **argv)
 
     int exit_code = 0;
 
-    if (flags & CMD_FLAGS_ERR)
+    if (flags & CMD_FLAGS_ERR || flags & CMD_FLAGS_HLP)
     {
         usage_msg();
-        exit(EXIT_FAILURE);
+        exit(flags & CMD_FLAGS_ERR ? EXIT_FAILURE : EXIT_SUCCESS);
     }
 
     initialize_rng();
@@ -100,10 +101,26 @@ static unsigned char parse_args(int argc, char **argv, char *buffer)
             flags |= CMD_FLAGS_TST;
             goto NextArgIsAValue;
         }
+        // help
+        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+        {
+            flags |= CMD_FLAGS_HLP;
+            return flags;
+        }
         // verbosity
         if (strncmp(argv[i], "-v", 2) == 0)
         {
             set_verbosity(argv[i]);
+            continue;
+        }
+        if (strcmp(argv[i], "--verbose") == 0)
+        {
+            set_verbosity("-v");
+            continue;
+        }
+        if (strcmp(argv[i], "--debug") == 0)
+        {
+            set_verbosity("-vv");
             continue;
         }
         flags |= CMD_FLAGS_ERR;
@@ -136,11 +153,19 @@ static void set_verbosity(char *arg)
 
 static void usage_msg(void)
 {
-    fprintf(stderr,
-            "usage: ./my_prime [-g [--hex]] [-t number]\n"
-            " -g: generate a prime number\n"
-            " --hex: print the generated number in hex format\n"
-            "\n"
-            " -t hex-number: run primality test in the given number\n"
-            "     (which should be in hex format)\n");
+    fprintf(
+        stderr,
+        "usage: ./my_prime [-h] [--help] [-g length [--hex]] [-t number] [-v] "
+        "[--verbose] [-vv] [--debug]\n"
+        "  -h | --help: show this help message\n"
+        "\n"
+        " -g length: generate a prime number of `length` bits (>= 2^length)\n"
+        " --hex: print the generated number in hex format\n"
+        "\n"
+        " -t hex-number: run primality test in the given number\n"
+        "     (which should be in hex format)\n"
+        "\n"
+        "  -v | --verbose: log info messages\n"
+        " -vv | --debug: log info and debug messages\n"
+        "\n");
 }
