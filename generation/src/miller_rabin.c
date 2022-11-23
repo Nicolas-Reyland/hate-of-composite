@@ -1,5 +1,7 @@
 #include "miller_rabin.h"
 
+#include <openssl/err.h>
+
 #include "logging.h"
 #include "random.h"
 
@@ -52,8 +54,12 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 
     /* Find a prime number (trial and error) */
     int found_prime;
+    int count = 0;
     do
     {
+        if (++count % 100 == 0)
+            LOG_DEBUG("%d candidates tested", count)
+
         if (!generate_prime_candidate(p, length))
             goto MillerRabinFailed;
 
@@ -61,9 +67,9 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
             == -1)
             goto MillerRabinFailed;
     } while (!found_prime);
+    LOG_INFO("Found a candidate (%d tries)", count)
 
     BN_CTX_free(ctx);
-    LOG_DEBUG("Exit successful")
 
     return p;
 
@@ -119,19 +125,21 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
     int result = -1;
 
     /* BIGNUM Initializations */
-    // TODO: use values from BN_CTX *ctx
-    BIGNUM *r = BN_secure_new();
-    BIGNUM *s = BN_secure_new();
-    BIGNUM *a = BN_secure_new();
-    BIGNUM *x = BN_secure_new();
-    BIGNUM *j = BN_secure_new();
-    BIGNUM *n_minus_one = BN_secure_new();
-    BIGNUM *bn_one = BN_secure_new();
-    BIGNUM *bn_two = BN_secure_new();
-    if (r == NULL || s == NULL || a == NULL || x == NULL || j == NULL
-        || n_minus_one == NULL || bn_one == NULL || bn_two == NULL)
+    BN_CTX_start(ctx);
+    BIGNUM *r = BN_CTX_get(ctx);
+    BIGNUM *s = BN_CTX_get(ctx);
+    BIGNUM *a = BN_CTX_get(ctx);
+    BIGNUM *x = BN_CTX_get(ctx);
+    BIGNUM *j = BN_CTX_get(ctx);
+    BIGNUM *n_minus_one = BN_CTX_get(ctx);
+    BIGNUM *bn_one = BN_CTX_get(ctx);
+    BIGNUM *bn_two = BN_CTX_get(ctx);
+    // Only need to check the last call to BN_CTX_get
+    // Src: https://www.openssl.org/docs/manmaster/man3/BN_CTX_get.html
+    if (bn_two == NULL)
     {
-        LOG_ERROR("Out of memory")
+        unsigned long err_code = ERR_get_error();
+        LOG_ERROR("%s", ERR_error_string(err_code, NULL))
         goto MillerRabinTestsEnd;
     }
 
@@ -180,7 +188,7 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
                 {
                     LOG_DEBUG("found prime with certainty after %u tests", i)
                     result = 1;
-                    break;
+                    goto MillerRabinTestsEnd;
                 }
 
                 // j += 1
@@ -191,26 +199,16 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
             if (BN_cmp(x, n_minus_one) != 0)
             {
                 result = 0;
-                break;
+                goto MillerRabinTestsEnd;
             }
         }
-
-        if (result != -1)
-            break;
     }
 
     if (result == -2)
         result = 1;
 
 MillerRabinTestsEnd:
-    BN_clear_free(r);
-    BN_clear_free(s);
-    BN_clear_free(a);
-    BN_clear_free(x);
-    BN_clear_free(j);
-    BN_clear_free(n_minus_one);
-    BN_clear_free(bn_one);
-    BN_clear_free(bn_two);
+    BN_CTX_end(ctx);
 
     return result;
 }
