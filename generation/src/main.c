@@ -8,11 +8,12 @@
 #include "primality_test.h"
 #include "random.h"
 
-#define CMD_FLAGS_GEN 0b00001
-#define CMD_FLAGS_HEX 0b00010
-#define CMD_FLAGS_TST 0b00100
-#define CMD_FLAGS_HLP 0b01000
-#define CMD_FLAGS_ERR 0b10000
+#define CMD_FLAGS_GEN 0b000001
+#define CMD_FLAGS_HEX 0b000010
+#define CMD_FLAGS_TST 0b000100
+#define CMD_FLAGS_HLP 0b001000
+#define CMD_FLAGS_DEC 0b010000
+#define CMD_FLAGS_ERR 0b100000
 
 static unsigned char parse_args(int argc, char **argv, char *buffer);
 
@@ -32,6 +33,8 @@ int main(int argc, char **argv)
     }
 
     initialize_prng();
+
+    // TODO: validate input (such as numbers, of any kind)
 
     if (flags & CMD_FLAGS_GEN)
     {
@@ -54,7 +57,16 @@ int main(int argc, char **argv)
     else if (flags & CMD_FLAGS_TST)
     {
         BIGNUM *n = NULL;
-        BN_hex2bn(&n, buffer);
+        if (flags & CMD_FLAGS_DEC)
+        {
+            LOG_DEBUG("Reading %s as decimal value", buffer);
+            BN_dec2bn(&n, buffer);
+        }
+        else
+        {
+            LOG_DEBUG("Reading %s as hex value (default)", buffer);
+            BN_hex2bn(&n, buffer);
+        }
         int success = primality_test(n);
         switch (success)
         {
@@ -101,22 +113,28 @@ static unsigned char parse_args(int argc, char **argv, char *buffer)
             flags |= CMD_FLAGS_HEX;
             continue;
         }
+        if (strcmp(argv[i], "--dec") == 0)
+        {
+            flags |= CMD_FLAGS_DEC;
+            continue;
+        }
         if (strcmp(argv[i], "-g") == 0)
         {
+            if (flags & (CMD_FLAGS_GEN | CMD_FLAGS_TST))
+                return CMD_FLAGS_ERR;
             flags |= CMD_FLAGS_GEN;
             goto NextArgIsAValue;
         }
         if (strcmp(argv[i], "-t") == 0)
         {
+            if (flags & (CMD_FLAGS_GEN | CMD_FLAGS_TST))
+                return CMD_FLAGS_ERR;
             flags |= CMD_FLAGS_TST;
             goto NextArgIsAValue;
         }
         // help
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-        {
-            flags |= CMD_FLAGS_HLP;
-            return flags;
-        }
+            return CMD_FLAGS_HLP;
         // verbosity
         if (strncmp(argv[i], "-v", 2) == 0)
         {
@@ -165,18 +183,20 @@ static void usage_msg(void)
 {
     fprintf(
         stderr,
-        "usage: ./my_prime [-h] [--help] [-g length [--hex]] [-t number] [-v] "
-        "[--verbose] [-vv] [--debug]\n"
+        "usage: ./my_prime [-h] [--help] [-g length] [-t number] [--hex] "
+        "[--dec] [-v] [--verbose] [-vv] [--debug]\n"
         "  -h | --help: show this help message\n"
         "\n"
         " -g length: generate a prime number of `length` bits (generated >= "
         "2^length)\n"
-        " --hex: print the generated number in hex format\n"
         "\n"
         " -t hex-number: run primality test in the given number\n"
         "     (which should be in hex format)\n"
         "\n"
         "  -v | --verbose: log info messages\n"
         " -vv | --debug: log info and debug messages\n"
-        "\n");
+        "\n"
+        " --hex: for -g only. print the generated number in hex format\n"
+        " --dec: for -t only. accept input string as decimal, instead of "
+        "hex\n");
 }

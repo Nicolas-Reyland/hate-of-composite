@@ -7,9 +7,9 @@
 #include "random.h"
 
 // 24 first prime numbers
-static int PRELIMINARY_PRIMES[] = { 3,  5,  7,  11, 13, 17, 19, 23,
-                                    29, 31, 37, 41, 43, 47, 53, 59,
-                                    61, 67, 71, 73, 79, 83, 89, 97 };
+static BN_ULONG PRELIMINARY_PRIMES[] = { 3,  5,  7,  11, 13, 17, 19, 23,
+                                         29, 31, 37, 41, 43, 47, 53, 59,
+                                         61, 67, 71, 73, 79, 83, 89, 97 };
 
 /*
  * Src:
@@ -121,13 +121,15 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
 {
     // TODO: check for errors
 
+    const size_t num_preliminary_primes =
+        sizeof(PRELIMINARY_PRIMES) / sizeof(PRELIMINARY_PRIMES[0]);
+
     BN_CTX_start(ctx);
 
     BIGNUM *rem = BN_CTX_get(ctx);
     BIGNUM *div = BN_CTX_get(ctx);
 
-    for (size_t i = 0;
-         i < sizeof(PRELIMINARY_PRIMES) / sizeof(PRELIMINARY_PRIMES[0]); ++i)
+    for (size_t i = 0; i < num_preliminary_primes; ++i)
     {
         BN_set_word(div, PRELIMINARY_PRIMES[i]);
         BN_mod(rem, n, div, ctx);
