@@ -93,12 +93,14 @@ int main(int argc, char **argv)
             switch (success)
             {
             case 1: {
-                LOG_INFO("%s is a prime number", buffer);
+                LOG_INFO("%s (%s) is a prime number", buffer,
+                         flags & CMD_FLAGS_DEC ? "dec" : "hex");
                 exit_code = 1;
             }
             break;
             case 0: {
-                LOG_INFO("%s is NOT a prime number", buffer);
+                LOG_INFO("%s (%s) is NOT a prime number", buffer,
+                         flags & CMD_FLAGS_DEC ? "dec" : "hex");
                 exit_code = 0;
             }
             break;
