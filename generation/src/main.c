@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     {
         BIGNUM *n = NULL;
         BN_hex2bn(&n, buffer);
-        if (primality_test(n))
+        if (primality_test(n) == 1)
         {
             LOG_INFO("%s is a prime number", buffer);
             exit_code = 0;

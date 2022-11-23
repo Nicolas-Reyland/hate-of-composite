@@ -176,6 +176,7 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
                 //    x == 1
                 if (BN_is_one(x))
                 {
+                    LOG_DEBUG("found prime with certainty after %u tests", i)
                     result = 1;
                     break;
                 }
