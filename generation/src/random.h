@@ -3,9 +3,9 @@
 
 #include <openssl/bn.h>
 
-extern int rng_initialized;
+extern int prng_initialized;
 
-void initialize_rng(void);
+void initialize_prng(void);
 
 int random_int(void);
 

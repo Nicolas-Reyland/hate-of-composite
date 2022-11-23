@@ -31,7 +31,7 @@ int main(int argc, char **argv)
         exit(flags & CMD_FLAGS_ERR ? EXIT_FAILURE : EXIT_SUCCESS);
     }
 
-    initialize_rng();
+    initialize_prng();
 
     if (flags & CMD_FLAGS_GEN)
     {

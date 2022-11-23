@@ -33,10 +33,10 @@ static int preliminary_checks(BIGNUM *n, BN_CTX *ctx);
 
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 {
-    if (!rng_initialized)
+    if (!prng_initialized)
     {
         LOG_WARN("RNG is not initialized... doing it now")
-        initialize_rng();
+        initialize_prng();
     }
 
     /* Validate arguments */

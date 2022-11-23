@@ -1,16 +1,27 @@
 #include "random.h"
 
+#include <errno.h>
 #include <openssl/err.h>
+#include <string.h>
+#include <sys/random.h>
 #include <time.h>
 
 #include "logging.h"
 
-int rng_initialized = 0;
+int prng_initialized = 0;
 
-void initialize_rng(void)
+void initialize_prng(void)
 {
-    srand(time(NULL));
-    rng_initialized = 1;
+    int seed;
+    if (getrandom(&seed, sizeof(int), GRND_RANDOM) == -1)
+    {
+        LOG_ERROR("could not get random data from `getrandom`: %s",
+                  strerror(errno))
+        LOG_WARN("seeding with current timestamp instead")
+        seed = time(NULL);
+    }
+    srand(seed);
+    prng_initialized = 1;
 }
 
 int random_int(void)
