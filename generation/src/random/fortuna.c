@@ -4,25 +4,27 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/random.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "logging.h"
-#include "twofish.h"
+#include "random/random.h"
+#include "utils/logging.h"
+#include "utils/rsa/rsa.h"
 
 #define FORTUNA_NUM_POOLS 3
 #define FORTUNA_RESEED_PERIOD 1000
 
 int f_seed = 0;
+int f_counter = 0;
 
 static void fortuna_seed_from_pool(unsigned pool_index);
 
 void fortuna_seed(void)
 {
-    Twofish_initialise();
+    initialize_rsa();
     for (unsigned pool_index = 0; pool_index < FORTUNA_NUM_POOLS; ++pool_index)
         fortuna_seed_from_pool(pool_index);
+    f_counter = f_seed;
 }
 
 int fortuna_rand(void)
@@ -38,14 +40,7 @@ int fortuna_rand(void)
     }
 #endif /* !FORTUNA_AUTO_RESEED */
 
-    static int counter = 0;
-    (void)counter;
-
-    int value;
-    getrandom(&value, sizeof(int), GRND_RANDOM);
-    value ^= f_seed;
-
-    return value;
+    return rsa_encrypt(f_counter++);
 }
 
 void fortuna_seed_from_pool(unsigned pool_index)
@@ -54,11 +49,7 @@ void fortuna_seed_from_pool(unsigned pool_index)
     switch (pool_index)
     {
     case 0: {
-        if (getrandom(&f_seed, sizeof(int), GRND_RANDOM) == -1)
-        {
-            LOG_WARN("could not get random data from `getrandom`: %s",
-                     strerror(errno))
-        }
+        f_seed = no_init_random_int();
     }
     break;
     case 1: {

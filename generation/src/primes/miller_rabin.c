@@ -3,8 +3,8 @@
 #include <math.h>
 #include <openssl/err.h>
 
-#include "logging.h"
-#include "random.h"
+#include "random/random.h"
+#include "utils/logging.h"
 
 // 24 first prime numbers
 static BN_ULONG PRELIMINARY_PRIMES[] = { 3,  5,  7,  11, 13, 17, 19, 23,

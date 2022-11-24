@@ -1,7 +1,7 @@
 #include "generate_prime.h"
 
-#include "logging.h"
-#include "miller_rabin.h"
+#include "primes/miller_rabin.h"
+#include "utils/logging.h"
 
 BIGNUM *generate_prime(int length)
 {

@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "generate_prime.h"
-#include "logging.h"
-#include "miller_rabin.h"
-#include "primality_test.h"
-#include "random.h"
+#include "primes/generate_prime.h"
+#include "primes/miller_rabin.h"
+#include "primes/primality_test.h"
+#include "random/random.h"
+#include "utils/logging.h"
 
 #define EXIT_CODE_SUCCESS 0
 #define EXIT_CODE_FAIlURE 2

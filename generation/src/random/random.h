@@ -9,6 +9,8 @@ void initialize_prng(void);
 
 int random_int(void);
 
+int no_init_random_int(void);
+
 int random_decision(void);
 
 void bn_rand_max(BIGNUM *n, BIGNUM *max);

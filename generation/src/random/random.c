@@ -1,9 +1,12 @@
 #include "random.h"
 
+#include <errno.h>
 #include <openssl/err.h>
+#include <string.h>
+#include <sys/random.h>
 
-#include "fortuna.h"
-#include "logging.h"
+#include "random/fortuna.h"
+#include "utils/logging.h"
 
 int prng_initialized = 0;
 
@@ -16,6 +19,14 @@ void initialize_prng(void)
 int random_int(void)
 {
     return fortuna_rand();
+}
+
+int no_init_random_int(void)
+{
+    int value;
+    if (getrandom(&value, sizeof(int), GRND_RANDOM) == -1)
+        LOG_ERROR("%s", strerror(errno))
+    return value;
 }
 
 int random_decision()
@@ -31,13 +42,14 @@ void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b)
     BN_add(r, r, a);
 }
 
-static int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until);
+static int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until,
+                          int (*rng_f)(void));
 
 void bn_rand_max(BIGNUM *n, BIGNUM *max)
 {
     unsigned length = BN_num_bits(max);
     BN_set_bit(n, length - 1);
-    random_bn_fill(n, 0, length);
+    random_bn_fill(n, 0, length, &random_int);
 
     //        n >= max
     while (BN_cmp(n, max) != -1)
@@ -52,14 +64,19 @@ void bn_rand_max(BIGNUM *n, BIGNUM *max)
 int generate_prime_candidate(BIGNUM *p, unsigned length)
 {
     // Fill p at [1:length-2] with random bits
-    return random_bn_fill(p, 1, length - 1);
+    int (*rng_f)(void) = NULL;
+    if (prng_initialized)
+        rng_f = &random_int;
+    else
+        rng_f = &no_init_random_int;
+    return random_bn_fill(p, 1, length - 1, rng_f);
 }
 
-int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until)
+int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until, int (*rng_f)(void))
 {
     while (pos < until)
     {
-        int buf = random_int();
+        int buf = (*rng_f)();
         for (size_t i = 0; i < sizeof(int) * 8; ++i)
         {
             int success =
