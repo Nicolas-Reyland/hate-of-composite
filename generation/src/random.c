@@ -43,26 +43,36 @@ void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b)
     // TODO: fix this too (using own fn for random bn generation)
 
     BN_sub(b, b, a);
-    BN_rand_range(r, b);
+    bn_rand_max(r, b);
     BN_add(b, b, a);
     BN_add(r, r, a);
 }
 
-static int random_bn_fill(BIGNUM *p, unsigned length, unsigned pos,
-                          unsigned until);
+static int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until);
 
-int bn_rand_range(BIGNUM *n, BIGNUM *range)
+void bn_rand_max(BIGNUM *n, BIGNUM *max)
 {
-    return 0;
+    unsigned length = BN_num_bits(max);
+    BN_set_bit(n, length - 1);
+    random_bn_fill(n, 0, length);
+
+    //        n >= max
+    while (BN_cmp(n, max) != -1)
+    {
+        BN_lshift(n, n, 1);
+        BN_clear_bit(n, length);
+        if (random_decision())
+            BN_set_bit(n, 0);
+    }
 }
 
 int generate_prime_candidate(BIGNUM *p, unsigned length)
 {
     // Fill p at [1:length-2] with random bits
-    return random_bn_fill(p, length, 1, length - 1);
+    return random_bn_fill(p, 1, length - 1);
 }
 
-int random_bn_fill(BIGNUM *p, unsigned length, unsigned pos, unsigned until)
+int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until)
 {
     while (pos < until)
     {

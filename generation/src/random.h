@@ -11,6 +11,8 @@ int random_int(void);
 
 int random_decision(void);
 
+void bn_rand_max(BIGNUM *n, BIGNUM *max);
+
 void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b);
 
 int generate_prime_candidate(BIGNUM *p, unsigned length);
