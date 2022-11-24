@@ -48,12 +48,22 @@ void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b)
     BN_add(r, r, a);
 }
 
+static int random_bn_fill(BIGNUM *p, unsigned length, unsigned pos,
+                          unsigned until);
+
+int bn_rand_range(BIGNUM *n, BIGNUM *range)
+{
+    return 0;
+}
+
 int generate_prime_candidate(BIGNUM *p, unsigned length)
 {
     // Fill p at [1:length-2] with random bits
-    unsigned pos = 1;
-    unsigned until = length - 1;
+    return random_bn_fill(p, length, 1, length - 1);
+}
 
+int random_bn_fill(BIGNUM *p, unsigned length, unsigned pos, unsigned until)
+{
     while (pos < until)
     {
         int buf = random_int();
