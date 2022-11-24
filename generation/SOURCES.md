@@ -9,4 +9,6 @@ Sources used :
  - [Cryptographically secure pseudorandom number generator - Wikipedia](https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator)
  - [Pseudorandom number generator - Wikipedia](https://en.wikipedia.org/wiki/Pseudorandom_number_generator)
  - [Fortuna_(PRNG) - Wikipedia](https://en.wikipedia.org/wiki/Fortuna_%28PRNG%29)
+ - [(PDF) Cryptographic Algorithms Benchmarking: A Case Study](https://www.researchgate.net/publication/344783641_Cryptographic_Algorithms_Benchmarking_A_Case_Study)
+   This is for the fortuna csprng, which uses block ciphers. I used the fastest one (Twofish), because speed is what was most needed here.
 

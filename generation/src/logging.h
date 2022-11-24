@@ -11,8 +11,8 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > 0)                                                     \
         {                                                                      \
-            fprintf(stderr, "\033[91m{ERROR}\033[39m %s@%d: " Format "\n",        \
-                    __func__, __LINE__, ##__VA_ARGS__);                                  \
+            fprintf(stderr, "\033[91m{ERROR}\033[39m %s@%d: " Format "\n",     \
+                    __func__, __LINE__, ##__VA_ARGS__);                        \
         }                                                                      \
     }
 
@@ -20,8 +20,8 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > 1)                                                     \
         {                                                                      \
-            fprintf(stderr, "\033[33m{WARN}\033[39m %s@%d: " Format "\n",         \
-                    __func__, __LINE__, ##__VA_ARGS__);                                  \
+            fprintf(stderr, "\033[33m{WARN}\033[39m %s@%d: " Format "\n",      \
+                    __func__, __LINE__, ##__VA_ARGS__);                        \
         }                                                                      \
     }
 
@@ -29,8 +29,8 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > 2)                                                     \
         {                                                                      \
-            fprintf(stderr, "\033[32m{INFO}\033[39m %s@%d: " Format "\n",         \
-                    __func__, __LINE__, ##__VA_ARGS__);                                  \
+            fprintf(stderr, "\033[32m{INFO}\033[39m %s@%d: " Format "\n",      \
+                    __func__, __LINE__, ##__VA_ARGS__);                        \
         }                                                                      \
     }
 
@@ -38,8 +38,8 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > 3)                                                     \
         {                                                                      \
-            fprintf(stderr, "\033[94m{DEBUG}\033[39m %s@%d: " Format "\n",        \
-                    __func__, __LINE__, ##__VA_ARGS__);                                  \
+            fprintf(stderr, "\033[94m{DEBUG}\033[39m %s@%d: " Format "\n",     \
+                    __func__, __LINE__, ##__VA_ARGS__);                        \
         }                                                                      \
     }
 
