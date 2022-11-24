@@ -1,6 +1,9 @@
 #include "rsa.h"
 
 #include "utils/logging.h"
+#include "utils/size_t_sqrt.h"
+
+#define RSA_PQ_PRIME_SET_SIZE 1000000
 
 typedef unsigned long long ull;
 
@@ -25,11 +28,26 @@ static ull gcd(ull a, ull h)
     }
 }
 
+static unsigned char *gen_primes(size_t n)
+{
+    // Sieve of erathosthenes (low memory footprint)
+    unsigned char *primes = calloc(n, sizeof(unsigned char));
+    ull sqrt_n = size_t_sqrt(n);
+
+    // TODO: optimize: increment two-by-two
+    for (ull i = 2; i < sqrt_n; ++i)
+    {
+        //
+    }
+    return primes;
+}
+
 void initialize_rsa()
 {
-    // TODO: use actual random primes
-    ull p = 589591; // random_prime();
-    ull q = 953399; // random_prime();
+    unsigned char *primes = gen_primes(RSA_PQ_PRIME_SET_SIZE);
+    ull p = random_prime_choice(primes); // 589591;
+    ull q = random_prime_choice(primes); // 953399;
+    free(primes);
     ull n = p * q;
     ull phi = (p - 1) * (q - 1);
     ull e = 2;
