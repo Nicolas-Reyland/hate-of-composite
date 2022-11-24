@@ -24,12 +24,15 @@ void initialize_prng(void)
     seed ^= pthread_self();
     seed ^= getpid() << 20;
 
+    // TODO: use own prng algorithm
     srand(seed);
+
     prng_initialized = 1;
 }
 
 int random_int(void)
 {
+    // TODO: use own prng algorithm
     return rand();
 }
 
@@ -40,8 +43,6 @@ int random_decision()
 
 void random_bn_from_range(BIGNUM *r, BIGNUM *a, BIGNUM *b)
 {
-    // TODO: fix this too (using own fn for random bn generation)
-
     BN_sub(b, b, a);
     bn_rand_max(r, b);
     BN_add(b, b, a);
