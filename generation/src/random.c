@@ -2,9 +2,11 @@
 
 #include <errno.h>
 #include <openssl/err.h>
+#include <pthread.h>
 #include <string.h>
 #include <sys/random.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "logging.h"
 
@@ -15,11 +17,13 @@ void initialize_prng(void)
     int seed;
     if (getrandom(&seed, sizeof(int), GRND_RANDOM) == -1)
     {
-        LOG_ERROR("could not get random data from `getrandom`: %s",
-                  strerror(errno))
-        LOG_WARN("seeding with current timestamp instead")
-        seed = time(NULL);
+        LOG_WARN("could not get random data from `getrandom`: %s",
+                 strerror(errno))
     }
+    seed ^= time(NULL);
+    seed ^= pthread_self();
+    seed ^= getpid() << 20;
+
     srand(seed);
     prng_initialized = 1;
 }
