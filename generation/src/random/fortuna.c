@@ -43,13 +43,13 @@ int fortuna_rand(void)
 {
 #ifndef FORTUNA_NO_AUTO_RESEED
     static unsigned num_calls = 0;
-    static unsigned pool_index = 0;
+    static unsigned pool_counter = 0;
     if (++num_calls == FORTUNA_RESEED_PERIOD)
     {
         num_calls = 0;
-        LOG_DEBUG("reseeding with pool index (counter) %u (%u)", pool_index,
-                  pool_index % FORTUNA_NUM_POOLS)
-        fortuna_seed_from_pool(pool_index++);
+        LOG_DEBUG("reseeding with pool counter %u (pool index = %u)",
+                  pool_counter, pool_counter % FORTUNA_NUM_POOLS)
+        fortuna_seed_from_pool(pool_counter++);
     }
 #endif /* !FORTUNA_NO_AUTO_RESEED */
 
