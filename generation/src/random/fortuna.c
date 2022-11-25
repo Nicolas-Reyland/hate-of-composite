@@ -12,7 +12,10 @@
 #include "utils/rsa/rsa.h"
 
 #define FORTUNA_NUM_POOLS 3
-#define FORTUNA_RESEED_PERIOD 1000
+
+#ifndef FORTUNA_RESEED_PERIOD
+#    define FORTUNA_RESEED_PERIOD 1000
+#endif /* !FORTUNA_RESEED_PERIOD  */
 
 int f_seed = 0;
 int f_counter = 0;
@@ -38,16 +41,17 @@ void fortuna_cleanup(void)
 
 int fortuna_rand(void)
 {
-#ifdef FORTUNA_AUTO_RESEED
+#ifndef FORTUNA_NO_AUTO_RESEED
     static unsigned num_calls = 0;
     static unsigned pool_index = 0;
     if (++num_calls == FORTUNA_RESEED_PERIOD)
     {
         num_calls = 0;
-        LOG_DEBUG("reseeding with pool index %u", pool_index)
+        LOG_DEBUG("reseeding with pool index (counter) %u (%u)", pool_index,
+                  pool_index % FORTUNA_NUM_POOLS)
         fortuna_seed_from_pool(pool_index++);
     }
-#endif /* !FORTUNA_AUTO_RESEED */
+#endif /* !FORTUNA_NO_AUTO_RESEED */
 
     return rsa_encrypt(f_counter++);
 }

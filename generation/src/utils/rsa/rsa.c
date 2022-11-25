@@ -105,7 +105,8 @@ int initialize_rsa()
         // gcd = gcd(e, phi)
         if (!BN_gcd(gcd, e, phi, ctx))
         {
-            LOG_ERROR("failed to evaluate 'gcd = gcd(e, phi)': %s", OPENSSL_ERR_STRING)
+            LOG_ERROR("failed to evaluate 'gcd = gcd(e, phi)': %s",
+                      OPENSSL_ERR_STRING)
             goto RsaInitializeFailed;
         }
         // if (gcd(e, phi) == 1)
@@ -125,12 +126,8 @@ int initialize_rsa()
 
     rsa_ctx.n = n;
     rsa_ctx.e = e;
-    // TODO: maybe clear and re-allocate a new ctx ?
-    // We used a lot of variables, maybe there is some unecessary waste of
-    // memory ?
-    // + values such as p and q should not remain in memory, for security
-    // reasons ?
     rsa_ctx.ctx = ctx;
+
     return 1;
 
 RsaInitializeFailed:
