@@ -66,6 +66,11 @@ int exec_generate_prime(unsigned flags, char *buffer)
 {
     char *endptr = NULL;
     long length = strtol(buffer, &endptr, 10);
+    if (length < 0)
+    {
+        LOG_ERROR("Invalid integer: %ld (negative)", length)
+        return EXIT_CODE_FAILURE;
+    }
 
     if (*endptr != 0)
     {

@@ -30,7 +30,7 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
     /* Validate arguments */
     if (length < 2)
     {
-        LOG_ERROR("Invalid int length: %u", length)
+        LOG_ERROR("Invalid length: %u", length)
         return NULL;
     }
 
