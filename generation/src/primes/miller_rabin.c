@@ -7,6 +7,10 @@
 #include "random/random.h"
 #include "utils/logging.h"
 
+#ifndef MILLER_RABBIN_MAX_NUM_TESTS
+#    define MILLER_RABBIN_MAX_NUM_TESTS 20
+#endif /* !MILLER_RABBIN_MAX_NUM_TESTS */
+
 /*
  * Src:
  * https://security.stackexchange.com/questions/4544/how-many-iterations-of-rabin-miller-should-be-used-to-generate-cryptographic-saf
@@ -19,8 +23,8 @@ unsigned estimate_num_tests(unsigned length)
     unsigned num_tests = length;
     if (num_tests < 10)
         num_tests = 10;
-    if (num_tests > 40)
-        num_tests = 40;
+    if (num_tests > MILLER_RABBIN_MAX_NUM_TESTS)
+        num_tests = MILLER_RABBIN_MAX_NUM_TESTS;
 
     return num_tests;
 }
