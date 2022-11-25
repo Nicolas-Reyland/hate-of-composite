@@ -31,12 +31,6 @@ unsigned estimate_num_tests(unsigned length)
 
 BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
 {
-    if (!prng_initialized)
-    {
-        LOG_WARN("RNG is not initialized... doing it now")
-        initialize_prng();
-    }
-
     /* Validate arguments */
     if (length < 2)
     {

@@ -1,11 +1,12 @@
 #include "rsa.h"
+#include "primes/generate_prime.h"
 
 #include <openssl/bn.h>
 #include <stddef.h>
 
 #include "utils/logging.h"
 
-#define RSA_PQ_PRIME_SET_SIZE 1000000
+#define RSA_PQ_LENGTH 1024
 
 typedef unsigned long long ull;
 
@@ -29,10 +30,8 @@ void initialize_rsa()
     BN_CTX *ctx = BN_CTX_secure_new();
     BN_CTX_start(ctx);
 
-    BIGNUM *p = BN_CTX_get(ctx);
-    BN_set_word(p, 589591);
-    BIGNUM *q = BN_CTX_get(ctx);
-    BN_set_word(q, 953399);
+    BIGNUM *p = generate_prime(RSA_PQ_LENGTH);
+    BIGNUM *q = generate_prime(RSA_PQ_LENGTH);
 
     // n = p * q
     BN_mul(n, p, q, ctx);
@@ -70,6 +69,8 @@ void initialize_rsa()
     }
 
     BN_CTX_end(ctx);
+    BN_clear_free(p);
+    BN_clear_free(q);
 
     rsa_ctx.n = n;
     rsa_ctx.e = e;
