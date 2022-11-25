@@ -1,6 +1,7 @@
 #include "primality_test.h"
 
 #include "primes/miller_rabin.h"
+#include "primes/preliminary.h"
 #include "utils/logging.h"
 
 int primality_test(BIGNUM *p, unsigned num_tests, BN_CTX *ctx)

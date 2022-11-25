@@ -25,9 +25,14 @@ int initialize_prng(void)
 
 void cleanup_prng(void)
 {
-    LOG_DEBUG("Cleaning up PRNG")
-    fortuna_cleanup();
-    prng_initialized = 0;
+    if (prng_initialized)
+    {
+        LOG_DEBUG("Cleaning up PRNG")
+        fortuna_cleanup();
+        prng_initialized = 0;
+    }
+    else
+        LOG_WARN("No need to clean up prng: not intiialized")
 }
 
 int random_int(void)

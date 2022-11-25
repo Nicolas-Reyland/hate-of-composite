@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "primes/generate_prime.h"
-#include "primes/miller_rabin.h"
+#include "primes/preliminary.h"
 #include "primes/primality_test.h"
 #include "random/random.h"
 #include "utils/logging.h"
@@ -42,12 +42,6 @@ int main(int argc, char **argv)
         exit(flags & CMD_FLAGS_ERR ? EXIT_CODE_FAILURE : EXIT_CODE_SUCCESS);
     }
 
-    if (!initialize_prng())
-    {
-        LOG_ERROR("failed to initilalize PRNG. Exiting")
-        return EXIT_CODE_FAILURE;
-    }
-
     /* Prime Number Generation */
     if (flags & CMD_FLAGS_GEN)
         exit_code = exec_generate_prime(flags, buffer);
@@ -62,7 +56,7 @@ int main(int argc, char **argv)
     }
 
     // clean up
-    cleanup_prng();
+    cleanup_preliminary();
     CRYPTO_cleanup_all_ex_data();
 
     return exit_code;
@@ -80,10 +74,25 @@ int exec_generate_prime(unsigned flags, char *buffer)
         return EXIT_CODE_FAILURE;
     }
 
+    // Need to setup preliminary for the prng initialization
+    if (!setup_preliminary())
+    {
+        LOG_ERROR("failed to initialize preliminary tests. Exiting")
+        return EXIT_CODE_FAILURE;
+    }
+
+    // Only init CSPRNG if we are generating primes
+    if (!initialize_prng())
+    {
+        LOG_ERROR("failed to initilalize PRNG. Exiting")
+        return EXIT_CODE_FAILURE;
+    }
+
     BIGNUM *p = generate_prime(length);
     if (p == NULL)
     {
         LOG_ERROR("Failed to generate prime with length %s", buffer);
+        cleanup_prng();
         return EXIT_CODE_FAILURE;
     }
     else
@@ -94,6 +103,7 @@ int exec_generate_prime(unsigned flags, char *buffer)
         BN_free(p);
     }
 
+    cleanup_prng();
     return EXIT_CODE_SUCCESS;
 }
 
@@ -118,6 +128,14 @@ int exec_primality_test(unsigned flags, char *buffer)
         LOG_ERROR("Could not read given prime number \"%s\"", buffer)
     else
     {
+        // Setup preliminary tests
+        if (!setup_preliminary())
+        {
+            LOG_ERROR("failed to initialize preliminary tests. Exiting")
+            BN_free(n);
+            return EXIT_CODE_FAILURE;
+        }
+
         int success = primality_test_once(n);
         BN_free(n);
 

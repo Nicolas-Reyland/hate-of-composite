@@ -13,6 +13,4 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx);
 
 unsigned estimate_num_tests(unsigned length);
 
-int preliminary_checks(BIGNUM *n, BN_CTX *ctx);
-
 #endif /* !MILLER_RABIN_H */
