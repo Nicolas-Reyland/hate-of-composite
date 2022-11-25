@@ -11,8 +11,10 @@ extern int LOG_LEVEL;
     {                                                                          \
         if (LOG_LEVEL > (LogLevelThreshold))                                   \
         {                                                                      \
-            fprintf(stderr, Prefix " (%s:%d) [%s]: " Format "\n", __FILE__,    \
-                    __LINE__, __func__, ##__VA_ARGS__);                        \
+            fprintf(stderr,                                                    \
+                    Prefix " (\033[35m%s\033[39m:\033[34m%d\033[39m) "         \
+                           "[\033[93m%s\033[39m]: " Format "\n",               \
+                    __FILE__, __LINE__, __func__, ##__VA_ARGS__);              \
         }                                                                      \
     }
 
