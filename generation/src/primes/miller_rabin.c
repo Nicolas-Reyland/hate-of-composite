@@ -112,6 +112,13 @@ MillerRabinFailed:
  */
 int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
 {
+    // TODO: add catching of -1 in caller functions
+    if (ctx == NULL)
+    {
+        LOG_ERROR("ctx is NULL")
+        return -1;
+    }
+
     /* Trivial- and Edge-cases */
     if (BN_is_word(n, 2))
         return 1;
@@ -123,7 +130,6 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
     if (!BN_is_odd(n) || BN_is_zero(n) || BN_is_one(n))
         return 0;
 
-    // TODO: check for errors
     const size_t num_preliminary_primes =
         sizeof(PRELIMINARY_PRIMES) / sizeof(PRELIMINARY_PRIMES[0]);
 
@@ -131,11 +137,28 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
 
     BIGNUM *rem = BN_CTX_get(ctx);
     BIGNUM *div = BN_CTX_get(ctx);
+    if (div == NULL)
+    {
+        LOG_ERROR("BN_CTX_get failed: %s",
+                  ERR_error_string(ERR_get_error(), NULL))
+        BN_CTX_end(ctx);
+        return -1;
+    }
 
     for (size_t i = 0; i < num_preliminary_primes; ++i)
     {
-        BN_set_word(div, PRELIMINARY_PRIMES[i]);
-        BN_mod(rem, n, div, ctx);
+        if (!BN_set_word(div, PRELIMINARY_PRIMES[i]))
+        {
+            LOG_ERROR("failed to set div to %lu", PRELIMINARY_PRIMES[i])
+            BN_CTX_end(ctx);
+            return -1;
+        }
+        if (!BN_mod(rem, n, div, ctx))
+        {
+            LOG_ERROR("failed to calculate mod %lu", PRELIMINARY_PRIMES[i])
+            BN_CTX_end(ctx);
+            return -1;
+        }
         if (BN_is_zero(rem))
         {
             BN_CTX_end(ctx);
