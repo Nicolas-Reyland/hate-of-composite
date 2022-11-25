@@ -1,7 +1,7 @@
 #ifndef FORTUNA_H
 #define FORTUNA_H
 
-void fortuna_seed(void);
+int fortuna_seed(void);
 
 void fortuna_cleanup(void);
 

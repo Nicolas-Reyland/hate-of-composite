@@ -19,12 +19,15 @@ int f_counter = 0;
 
 static void fortuna_seed_from_pool(unsigned pool_index);
 
-void fortuna_seed(void)
+int fortuna_seed(void)
 {
-    initialize_rsa();
+    if (!initialize_rsa())
+        return 0;
+
     for (unsigned pool_index = 0; pool_index < FORTUNA_NUM_POOLS; ++pool_index)
         fortuna_seed_from_pool(pool_index);
     f_counter = f_seed;
+    return 1;
 }
 
 void fortuna_cleanup(void)

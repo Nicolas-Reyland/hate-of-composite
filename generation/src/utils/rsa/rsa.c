@@ -19,53 +19,104 @@ struct rsa_ctx
 
 struct rsa_ctx rsa_ctx = { .n = NULL, .e = NULL, .ctx = NULL };
 
-void initialize_rsa()
+int initialize_rsa()
 {
-    // TODO: check for errors
     LOG_DEBUG("Initializing RSA")
 
-    BIGNUM *n = BN_new();
-    BIGNUM *e = BN_new();
+    BIGNUM *n = NULL;
+    BIGNUM *e = NULL;
+    BIGNUM *p = NULL;
+    BIGNUM *q = NULL;
+    BN_CTX *ctx = NULL;
 
-    BN_CTX *ctx = BN_CTX_secure_new();
+    // Initialize new bignums
+    n = BN_secure_new();
+    if (n == NULL)
+    {
+        LOG_ERROR("new bn: n: %s", OPENSSL_ERR_STRING)
+        return 0;
+    }
+    e = BN_secure_new();
+    if (e == NULL)
+    {
+        LOG_ERROR("new bn: e: %s", OPENSSL_ERR_STRING)
+        return 0;
+    }
+
+    ctx = BN_CTX_secure_new();
+    if (ctx == NULL)
+    {
+        LOG_ERROR("new ctx: %s", OPENSSL_ERR_STRING)
+        goto RsaInitializeFailed;
+    }
     BN_CTX_start(ctx);
 
-    BIGNUM *p = generate_prime(RSA_PQ_LENGTH);
-    BIGNUM *q = generate_prime(RSA_PQ_LENGTH);
+    p = generate_prime(RSA_PQ_LENGTH);
+    q = generate_prime(RSA_PQ_LENGTH);
+    if (q == NULL || p == NULL)
+    {
+        LOG_ERROR("generate_prime for p & q: %s", OPENSSL_ERR_STRING)
+        goto RsaInitializeFailed;
+    }
 
     // n = p * q
-    BN_mul(n, p, q, ctx);
+    if (!BN_mul(n, p, q, ctx))
+    {
+        LOG_ERROR("failed to evaluate 'n = p * q': %s", OPENSSL_ERR_STRING)
+        goto RsaInitializeFailed;
+    }
+
+    // Initialize variables from ctx
+    BIGNUM *p_m_1 = BN_CTX_get(ctx);
+    BIGNUM *q_m_1 = BN_CTX_get(ctx);
+    BIGNUM *phi = BN_CTX_get(ctx);
+    BIGNUM *gcd = BN_CTX_get(ctx);
+
+    if (gcd == NULL)
+    {
+        LOG_ERROR("failed to init variables from rsa ctx: %s",
+                  OPENSSL_ERR_STRING)
+        goto RsaInitializeFailed;
+    }
 
     // set 1
     const BIGNUM *one = BN_value_one();
 
-    // calc p - 1
-    BIGNUM *p_m_1 = BN_CTX_get(ctx);
-    BN_sub(p_m_1, p, one);
-
-    // calc q - 1
-    BIGNUM *q_m_1 = BN_CTX_get(ctx);
-    BN_sub(q_m_1, q, one);
-
-    // phi = (p - 1) * (q - 1)
-    BIGNUM *phi = BN_CTX_get(ctx);
-    BN_mul(phi, p_m_1, q_m_1, ctx);
-
-    // e = 2
-    BN_set_word(e, 2);
-
-    // gcd tmp variable
-    BIGNUM *gcd = BN_CTX_get(ctx);
+    {
+        // calc p - 1
+        int err = !BN_sub(p_m_1, p, one);
+        // calc q - 1
+        err |= !BN_sub(q_m_1, q, one);
+        // phi = (p - 1) * (q - 1)
+        err |= !BN_mul(phi, p_m_1, q_m_1, ctx);
+        // e = 2
+        err |= !BN_set_word(e, 2);
+        if (err)
+        {
+            LOG_ERROR("setting variables p - 1, q - 1, phi and e failed: %s",
+                      OPENSSL_ERR_STRING)
+            goto RsaInitializeFailed;
+        }
+    }
 
     // while e < phi
     while (BN_cmp(e, phi) == -1)
     {
-        BN_gcd(gcd, e, phi, ctx);
+        // gcd = gcd(e, phi)
+        if (!BN_gcd(gcd, e, phi, ctx))
+        {
+            LOG_ERROR("failed to evaluate 'gcd = gcd(e, phi)': %s", OPENSSL_ERR_STRING)
+            goto RsaInitializeFailed;
+        }
         // if (gcd(e, phi) == 1)
         if (BN_is_one(gcd))
             break;
         // e += 1
-        BN_add(e, e, one);
+        if (!BN_add(e, e, one))
+        {
+            LOG_ERROR("failed to evaluate 'e = e + 1': %s", OPENSSL_ERR_STRING)
+            goto RsaInitializeFailed;
+        }
     }
 
     BN_CTX_end(ctx);
@@ -80,6 +131,18 @@ void initialize_rsa()
     // + values such as p and q should not remain in memory, for security
     // reasons ?
     rsa_ctx.ctx = ctx;
+    return 1;
+
+RsaInitializeFailed:
+    BN_CTX_end(ctx);
+    BN_CTX_free(ctx);
+
+    BN_clear_free(n);
+    BN_clear_free(e);
+    BN_clear_free(p);
+    BN_clear_free(q);
+
+    return 0;
 }
 
 void cleanup_rsa(void)

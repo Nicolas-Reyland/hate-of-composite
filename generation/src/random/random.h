@@ -5,7 +5,7 @@
 
 extern int prng_initialized;
 
-void initialize_prng(void);
+int initialize_prng(void);
 
 void cleanup_prng(void);
 

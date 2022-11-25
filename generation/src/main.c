@@ -9,7 +9,7 @@
 #include "utils/logging.h"
 
 #define EXIT_CODE_SUCCESS 0
-#define EXIT_CODE_FAIlURE 2
+#define EXIT_CODE_FAILURE 2
 
 #define EXIT_CODE_NOT_PRIME 0
 #define EXIT_CODE_IS_PRIME 1
@@ -39,10 +39,14 @@ int main(int argc, char **argv)
     if (flags & (CMD_FLAGS_ERR | CMD_FLAGS_HLP))
     {
         usage_msg();
-        exit(flags & CMD_FLAGS_ERR ? EXIT_CODE_FAIlURE : EXIT_CODE_SUCCESS);
+        exit(flags & CMD_FLAGS_ERR ? EXIT_CODE_FAILURE : EXIT_CODE_SUCCESS);
     }
 
-    initialize_prng();
+    if (!initialize_prng())
+    {
+        LOG_ERROR("failed to initilalize PRNG. Exiting")
+        return EXIT_CODE_FAILURE;
+    }
 
     /* Prime Number Generation */
     if (flags & CMD_FLAGS_GEN)
@@ -73,14 +77,14 @@ int exec_generate_prime(unsigned flags, char *buffer)
     {
         LOG_ERROR("Invalid integer: %s (only base allwed is 10)", buffer)
         usage_msg();
-        return EXIT_CODE_FAIlURE;
+        return EXIT_CODE_FAILURE;
     }
 
     BIGNUM *p = generate_prime(length);
     if (p == NULL)
     {
         LOG_ERROR("Failed to generate prime with length %s", buffer);
-        return EXIT_CODE_FAIlURE;
+        return EXIT_CODE_FAILURE;
     }
     else
     {
@@ -132,12 +136,12 @@ int exec_primality_test(unsigned flags, char *buffer)
         default: {
             LOG_WARN("primality check exited with a failure status for %s",
                      buffer)
-            return EXIT_CODE_FAIlURE;
+            return EXIT_CODE_FAILURE;
         }
         }
     }
 
-    return EXIT_CODE_FAIlURE;
+    return EXIT_CODE_FAILURE;
 }
 
 static void set_verbosity(char *arg);

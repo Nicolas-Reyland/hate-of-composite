@@ -1,7 +1,7 @@
 #ifndef RSA_H
 #define RSA_H
 
-void initialize_rsa(void);
+int initialize_rsa(void);
 
 void cleanup_rsa(void);
 

@@ -10,10 +10,13 @@
 
 int prng_initialized = 0;
 
-void initialize_prng(void)
+int initialize_prng(void)
 {
-    fortuna_seed();
+    if (!fortuna_seed())
+        return 0;
+
     prng_initialized = 1;
+    return 1;
 }
 
 void cleanup_prng(void)
