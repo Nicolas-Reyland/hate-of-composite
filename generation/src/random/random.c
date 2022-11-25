@@ -13,14 +13,19 @@ int prng_initialized = 0;
 int initialize_prng(void)
 {
     if (!fortuna_seed())
+    {
+        LOG_INFO("PRNG initialization failed")
         return 0;
+    }
 
+    LOG_INFO("PRNG initialization succeeded")
     prng_initialized = 1;
     return 1;
 }
 
 void cleanup_prng(void)
 {
+    LOG_DEBUG("Cleaning up PRNG")
     fortuna_cleanup();
     prng_initialized = 0;
 }

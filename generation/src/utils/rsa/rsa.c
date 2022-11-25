@@ -147,7 +147,7 @@ RsaInitializeFailed:
 
 void cleanup_rsa(void)
 {
-    LOG_DEBUG("Cleaning up rsa")
+    LOG_DEBUG("Cleaning up RSA block cipher")
     BN_clear_free(rsa_ctx.n);
     BN_clear_free(rsa_ctx.e);
     BN_CTX_free(rsa_ctx.ctx);

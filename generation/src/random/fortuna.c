@@ -32,6 +32,7 @@ int fortuna_seed(void)
 
 void fortuna_cleanup(void)
 {
+    LOG_DEBUG("Cleaning up Fortuna PRNG")
     cleanup_rsa();
 }
 
@@ -43,7 +44,7 @@ int fortuna_rand(void)
     if (++num_calls == FORTUNA_RESEED_PERIOD)
     {
         num_calls = 0;
-        LOG_DEBUG("reseeding random")
+        LOG_DEBUG("reseeding with pool index %u", pool_index)
         fortuna_seed_from_pool(pool_index++);
     }
 #endif /* !FORTUNA_AUTO_RESEED */
