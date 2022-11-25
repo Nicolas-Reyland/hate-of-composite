@@ -27,6 +27,11 @@ void fortuna_seed(void)
     f_counter = f_seed;
 }
 
+void fortuna_cleanup(void)
+{
+    cleanup_rsa();
+}
+
 int fortuna_rand(void)
 {
 #ifdef FORTUNA_AUTO_RESEED

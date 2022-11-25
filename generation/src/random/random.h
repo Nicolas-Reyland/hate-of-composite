@@ -7,6 +7,8 @@ extern int prng_initialized;
 
 void initialize_prng(void);
 
+void cleanup_prng(void);
+
 int random_int(void);
 
 int no_init_random_int(void);

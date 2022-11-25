@@ -16,9 +16,15 @@ void initialize_prng(void)
     prng_initialized = 1;
 }
 
+void cleanup_prng(void)
+{
+    fortuna_cleanup();
+    prng_initialized = 0;
+}
+
 int random_int(void)
 {
-    return fortuna_rand();
+    return prng_initialized ? fortuna_rand() : no_init_random_int();
 }
 
 int no_init_random_int(void)

@@ -58,6 +58,7 @@ int main(int argc, char **argv)
     }
 
     // clean up
+    cleanup_prng();
     CRYPTO_cleanup_all_ex_data();
 
     return exit_code;

@@ -3,6 +3,8 @@
 
 void fortuna_seed(void);
 
+void fortuna_cleanup(void);
+
 int fortuna_rand(void);
 
 #endif /* !FORTUNA_H */
