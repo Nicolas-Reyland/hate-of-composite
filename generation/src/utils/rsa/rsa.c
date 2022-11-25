@@ -1,9 +1,9 @@
 #include "rsa.h"
-#include "primes/generate_prime.h"
 
 #include <openssl/bn.h>
 #include <stddef.h>
 
+#include "primes/generate_prime.h"
 #include "utils/logging.h"
 
 #define RSA_PQ_LENGTH 1024

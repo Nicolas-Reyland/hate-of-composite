@@ -3,6 +3,7 @@
 #include <math.h>
 #include <openssl/err.h>
 
+#include "primes/primality_test.h"
 #include "random/random.h"
 #include "utils/logging.h"
 
@@ -61,7 +62,7 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
     }
 
     /* Find a prime number (trial and error) */
-    int found_prime = 0, count = 0;
+    int count = 0, success = 0;
     do
     {
         if (++count % 100 == 0)
@@ -70,23 +71,9 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
         if (!generate_prime_candidate(p, length))
             goto MillerRabinFailed;
 
-        if (!preliminary_checks(p, ctx))
-            continue;
-
-#if 0
-        // if debugging is set
-        if (LOG_LEVEL >= 4)
-        {
-            char *buf = BN_bn2dec(p);
-            LOG_DEBUG("%s passed preliminary", buf);
-            OPENSSL_free(buf);
-        }
-#endif /* 0 */
-
-        if ((found_prime = miller_rabin_primality_check(p, num_tests, ctx))
-            == -1)
+        if ((success = primality_test(p, num_tests, ctx)) == -1)
             goto MillerRabinFailed;
-    } while (!found_prime);
+    } while (!success);
     LOG_INFO("Found a candidate (%d tries)", count)
 
     BN_CTX_free(ctx);

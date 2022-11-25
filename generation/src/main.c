@@ -114,7 +114,7 @@ int exec_primality_test(unsigned flags, char *buffer)
         LOG_ERROR("Could not read given prime number \"%s\"", buffer)
     else
     {
-        int success = primality_test(n);
+        int success = primality_test_once(n);
         BN_free(n);
 
         switch (success)
