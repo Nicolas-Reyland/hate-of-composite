@@ -9,6 +9,8 @@ int primality_test(BIGNUM *p, unsigned num_tests, BN_CTX *ctx)
     int success = preliminary_checks(p, ctx);
     if (success == 1)
         success = miller_rabin_primality_check(p, num_tests, ctx);
+    if (success == 2)
+        success = 1;
 
     return success;
 }

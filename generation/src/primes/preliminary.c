@@ -121,6 +121,9 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
     for (size_t i = 0; i < num_preliminary_primes; ++i)
     {
         BIGNUM *div = PRELIMINARY_PRIMES_BIGNUMS[i];
+        if (BN_cmp(n, div) == 0)
+            return 2;
+
         if (!BN_mod(rem, n, div, ctx))
         {
             LOG_ERROR("failed to calculate mod %lu", PRELIMINARY_PRIMES[i])
