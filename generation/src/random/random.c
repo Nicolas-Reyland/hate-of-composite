@@ -89,8 +89,7 @@ int random_bn_fill(BIGNUM *p, unsigned pos, unsigned until, int (*rng_f)(void))
                 buf & 1 ? BN_set_bit(p, pos++) : BN_clear_bit(p, pos++);
             if (!success)
             {
-                LOG_ERROR("(set/clear _bit) %s",
-                          ERR_error_string(ERR_get_error(), NULL))
+                LOG_ERROR("(set/clear _bit) %s", OPENSSL_ERR_STRING)
                 return 0;
             }
             if (pos == until)

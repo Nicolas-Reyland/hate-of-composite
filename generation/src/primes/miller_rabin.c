@@ -99,7 +99,6 @@ MillerRabinFailed:
  */
 int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
 {
-    // TODO: add catching of -1 in caller functions
     if (ctx == NULL)
     {
         LOG_ERROR("ctx is NULL")
@@ -126,8 +125,7 @@ int preliminary_checks(BIGNUM *n, BN_CTX *ctx)
     BIGNUM *div = BN_CTX_get(ctx);
     if (div == NULL)
     {
-        LOG_ERROR("BN_CTX_get failed: %s",
-                  ERR_error_string(ERR_get_error(), NULL))
+        LOG_ERROR("BN_CTX_get failed: %s", OPENSSL_ERR_STRING)
         BN_CTX_end(ctx);
         return -1;
     }
@@ -175,16 +173,15 @@ int miller_rabin_primality_check(BIGNUM *n, unsigned num_tests, BN_CTX *ctx)
     // Src: https://www.openssl.org/docs/manmaster/man3/BN_CTX_get.html
     if (two == NULL)
     {
-        unsigned long err_code = ERR_get_error();
-        LOG_ERROR("%s", ERR_error_string(err_code, NULL))
+        LOG_ERROR("initializing constants from ctx: %s", OPENSSL_ERR_STRING)
         goto MillerRabinTestsEnd;
     }
 
-    // TODO: check for errors
-
-    BN_one(one);
-    BN_set_word(two, 2);
-    BN_sub(n_minus_one, n, one);
+    if (!BN_one(one) || !BN_set_word(two, 2) || !BN_sub(n_minus_one, n, one))
+    {
+        LOG_ERROR("pre-setting constants: %s", OPENSSL_ERR_STRING)
+        goto MillerRabinTestsEnd;
+    }
 
     /* Miller-Rabin tests */
     result = -2;

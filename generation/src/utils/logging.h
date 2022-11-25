@@ -1,11 +1,12 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
+#include <openssl/err.h>
 #include <stdio.h>
 
 #define DEFAULT_LOG_LEVEL 2
 
-extern int LOG_LEVEL;
+#define OPENSSL_ERR_STRING ERR_error_string(ERR_get_error(), NULL)
 
 #define LOG_MESSAGE(LogLevelThreshold, Prefix, Format, ...)                    \
     {                                                                          \
@@ -29,5 +30,7 @@ extern int LOG_LEVEL;
 
 #define LOG_DEBUG(Format, ...)                                                 \
     LOG_MESSAGE(3, "\033[94m{DEBUG}\033[39m", Format, ##__VA_ARGS__)
+
+extern int LOG_LEVEL;
 
 #endif /* !LOGGING_H */
