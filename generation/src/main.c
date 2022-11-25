@@ -71,7 +71,7 @@ int exec_generate_prime(unsigned flags, char *buffer)
 
     if (*endptr != 0)
     {
-        LOG_ERROR("Invalid integer: %s (only base allwed is 10)\n", buffer)
+        LOG_ERROR("Invalid integer: %s (only base allwed is 10)", buffer)
         usage_msg();
         return EXIT_CODE_FAIlURE;
     }
