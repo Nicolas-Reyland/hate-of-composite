@@ -1,5 +1,12 @@
 # Makefile for httpd project
 
+# Here is a list of all the compilation flags (-D...) that can be passed to CMD_CFLAGS :
+# - BETTER_CHOOSE_RSA_E : choose the rsa exponent 'e' manually. it's generally bad idea ...
+# - CANDIDATES_COUNT : enable logging of candidate counts (can lighlty slow down the program)
+# - FORTUNA_NO_AUTO_RESEED : disable Fortuna CSPRNG self-reseeding. use this if your system is corrupt in some way
+# - MILLER_RABIN_MAX_NUM_TESTS=N : max number of tests to perform with miller rabin, until we decide that the candidate is indeed, prime
+#                                  by default, this value is set to 40 (see reason in docs)
+
 
 # -*- Setup Compilation Variables -*-
 CC ?= gcc
