@@ -8,7 +8,7 @@
 #include "utils/logging.h"
 
 #ifndef MILLER_RABBIN_MAX_NUM_TESTS
-#    define MILLER_RABBIN_MAX_NUM_TESTS 20
+#    define MILLER_RABBIN_MAX_NUM_TESTS 40
 #endif /* !MILLER_RABBIN_MAX_NUM_TESTS */
 
 /*
@@ -61,11 +61,16 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
     }
 
     /* Find a prime number (trial and error) */
-    int count = 0, success = 0;
+#ifdef CANDIDATES_COUNT
+    int count = 0;
+#endif /* CANDIDATES_COUNT */
+    int success = 0;
     do
     {
+#ifdef CANDIDATES_COUNT
         if (++count % 100 == 0)
             LOG_DEBUG("%d candidates tested", count)
+#endif /* CANDIDATES_COUNT */
 
         if (!generate_prime_candidate(p, length))
             goto MillerRabinFailed;
@@ -73,7 +78,11 @@ BIGNUM *miller_rabin_prime_generation(unsigned length, unsigned num_tests)
         if ((success = primality_test(p, num_tests, ctx)) == -1)
             goto MillerRabinFailed;
     } while (!success);
+#ifdef CANDIDATES_COUNT
     LOG_INFO("Found a candidate (%d tries)", count)
+#else /* CANDIDATES_COUNT */
+    LOG_INFO("Found a candidate")
+#endif /* CANDIDATES_COUNT */
 
     BN_CTX_free(ctx);
 
