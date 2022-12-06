@@ -89,8 +89,8 @@ int initialize_rsa()
         err |= !BN_sub(q_m_1, q, one);
         // phi = (p - 1) * (q - 1)
         err |= !BN_mul(phi, p_m_1, q_m_1, ctx);
-        // e = 2
-        err |= !BN_set_word(e, 2);
+        // e = 65537
+        err |= !BN_set_word(e, 65537);
         if (err)
         {
             LOG_ERROR("setting variables p - 1, q - 1, phi and e failed: %s",
@@ -99,6 +99,7 @@ int initialize_rsa()
         }
     }
 
+#ifdef BETTER_CHOOSE_RSA_E
     // while e < phi
     while (BN_cmp(e, phi) == -1)
     {
@@ -119,6 +120,7 @@ int initialize_rsa()
             goto RsaInitializeFailed;
         }
     }
+#endif /* BETTER_CHOOSE_RSA_E */
 
     BN_CTX_end(ctx);
     BN_clear_free(p);
