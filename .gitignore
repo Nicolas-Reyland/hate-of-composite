@@ -1,5 +1,6 @@
 # Custom
 my_prime*
+*.sw?
 
 # Prerequisites
 *.d
