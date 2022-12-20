@@ -1,6 +1,6 @@
 {-
 This script tries to find counter-examples to the PSW conjeture by iterating
-over the string pseudo-primes to base 2 (see haskell sources n°1).
+over the Fermat pseudo-primes to base 2 (see haskell sources n°1).
 -}
 
 -- Some Constants
