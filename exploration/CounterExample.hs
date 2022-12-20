@@ -25,15 +25,15 @@ fibo n = round $ ((phi ^^ n) - (psi ^^ n)) / sq5
 isFiboCounterExample :: Integer -> Bool
 isFiboCounterExample n = (fibo (n + 1) `mod` n) == 0
 
+-- Must have the right remainder
+isRightMod5 :: Integer -> Bool
+isRightMod5 = (\n -> n == 2 || n == 3) . (flip rem 5)
+
 -- List of Fermat pseudo-prime numbers to base 2 (see haskell sources n°1).
 strong_psp_b2_list :: IO [Integer]
 strong_psp_b2_list = do
     content <- readFile "pseudo-primes-b2.txt"
     return $ map (read . tail . (dropWhile (/=' '))) (lines content)
-
--- Must have the right remainder
-isRightMod5 :: Integer -> Bool
-isRightMod5 = (\n -> n == 2 || n == 3) . (flip rem 5)
 
 -- List of numbers that are -2 (or 3) or 2 mod 5
 selected_strong_psp_b2_list :: IO [Integer]
