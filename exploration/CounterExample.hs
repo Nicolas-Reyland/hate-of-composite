@@ -1,6 +1,9 @@
 {-
-This script tries to find counter-examples to the PSW conjeture by iterating
-over the Fermat pseudo-primes to base 2 (see haskell sources n°1).
+This program finds all the counter-examples to the PSW conjeture
+using a list of all the Fermat pseudo-primes to base 2 that are
+less than 10^12.
+
+(see haskell sources n°1).
 -}
 
 -- Some Constants
@@ -22,7 +25,7 @@ fibo n = round $ ((phi ^^ n) - (psi ^^ n)) / sq5
 isFiboCounterExample :: Integer -> Bool
 isFiboCounterExample n = (fibo (n + 1) `mod` n) == 0
 
--- List of Fermat pseudo-prime numbers to Base 2 (see haskell sources n°1).
+-- List of Fermat pseudo-prime numbers to base 2 (see haskell sources n°1).
 strong_psp_b2_list :: IO [Integer]
 strong_psp_b2_list = do
     content <- readFile "pseudo-primes-b2.txt"
