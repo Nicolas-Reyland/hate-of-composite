@@ -7,3 +7,7 @@ Sources used :
  - [number theory - Fibonacci pseudoprimes - Mathematics Stack Exchange](https://math.stackexchange.com/questions/2193215/fibonacci-pseudoprimes)
  - [Prime Appearances in Fibonacci Number Factorizations - Mathematics Stack Exchange](https://math.stackexchange.com/questions/37955/prime-appearances-in-fibonacci-number-factorizations/37957#37957)
  - [Fermat's little theorem - Wikipedia](https://en.wikipedia.org/wiki/Fermat%27s_little_theorem)
+ - [Carmichael number - Wikipedia](https://en.wikipedia.org/wiki/Carmichael_number)
+ - [Fermat pseudoprime - Wikipedia](https://en.wikipedia.org/wiki/Fermat_pseudoprime)
+ - [Chinese hypothesis - Wikipedia](https://en.wikipedia.org/wiki/Chinese_hypothesis)
+ - [93Jacobi pseudoprime - Wikipedia](https://en.wikipedia.org/wiki/Euler%E2%80%93Jacobi_pseudoprime)
