@@ -22,13 +22,17 @@ fibo n = round $ ((phi ^^ n) - (psi ^^ n)) / sq5
 isFiboCounterExample :: Integer -> Bool
 isFiboCounterExample n = (fibo (n + 1) `mod` n) == 0
 
--- List of Strong PseudoPrimes to Base 2 (see haskell sources n°1).
+-- List of Fermat pseudo-prime numbers to Base 2 (see haskell sources n°1).
 strong_psp_b2_list :: [Integer]
 strong_psp_b2_list = [341,561,645,1105,1387,1729,1905,2047,2465,2701,2821,3277,4033,4369,4371,4681,5461,6601,7957,8321,8481,8911,10261,10585,11305,12801,13741,13747,13981,14491,15709,15841,16705,18705,18721,19951,23001,23377,25761,29341]
 
+-- List of numbers that are -2 (or 3) or 2 mod 5
+selected_strong_psp_b2_list :: [Integer]
+selected_strong_psp_b2_list = filter ((flip elem [2,3]) . (flip rem 5)) strong_psp_b2_list
+
 -- List of counter examples to the PSW conjecture
 counter_examples :: [Integer]
-counter_examples = filter isFiboCounterExample strong_psp_b2_list
+counter_examples = filter isFiboCounterExample selected_strong_psp_b2_list
 
 main :: IO ()
 main = putStrLn $
