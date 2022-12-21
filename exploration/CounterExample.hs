@@ -6,24 +6,23 @@ less than 10^12.
 (see haskell sources n°1).
 -}
 
--- Some Constants
-sq5 :: Double
-sq5 = sqrt 5
-
-phi :: Double
-phi = (1 + sq5) / 2
-
-psi :: Double
-psi = (1 - sq5) / 2
-
--- Nth Fibonacci number
+-- Nth Fibonacci number (F0 = ?, F1 = 1, F2 = 1, F3 = 2)
 fibo :: Integer -> Integer
-fibo n = round $ ((phi ^^ n) - (psi ^^ n)) / sq5
+fibo = fst . fib_ . pred
+    where
+        fib_ 0 = (1, 1)
+        fib_ 1 = (1, 2)
+        fib_ n
+            | even n    = (a*a + b*b, c*c - a*a)
+            | otherwise = (c*c - a*a, b*b + c*c)
+            where
+                (a,b) = fib_ (n `div` 2 - 1)
+                c     = a + b
 
 -- Check if the input is a counter example to the PSW conjecture
 -- The input should already be a strong pseudoprime to base 2
 isFiboCounterExample :: Integer -> Bool
-isFiboCounterExample n = (fibo (n + 1) `mod` n) == 0
+isFiboCounterExample n = (fibo (n + 1)) `mod` n == 0
 
 -- Must have the right remainder
 isRightMod5 :: Integer -> Bool
