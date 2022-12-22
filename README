@@ -1,4 +1,14 @@
 # my_prime
 
-my_prime is a tool written in C to fiddle with prime numbers
-The exploration directory contains some research about a conjecture by Pomerance, Selfridge and Wagstaf.
+This repo is split into two parts :
+ - generation
+ - exploration
+
+## Generation
+The generation directory contains the source code (C) of a tool that can generate a prime number and test the primality of a number.
+Please read the associated README file for more information.
+
+## Exploration
+The exploration part contains some research about a conjecture made by Pomerance, Selfridge and Wagstaff.
+Please read the associated README file for more information.
+
