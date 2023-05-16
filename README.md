@@ -1,4 +1,4 @@
-# my_prime
+# hate-of-composite
 
 This repo is split into two parts :
  - generation
